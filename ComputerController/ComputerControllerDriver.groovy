@@ -28,9 +28,9 @@ metadata {
         command "AddStringParam",[[name:"Value*", type: "STRING", description: "Enter value", required: true ]]
         command "AddNumberParam",[[name:"Value*", type: "NUMBER", description: "Enter value", required: true ]]
         command "ClearParams"
-        attribute "Connected", "boolean"
+        attribute "Connected", "enum", ["true", "false"]
         attribute "EG Plugin Version", "string"
-        attribute "EG Plugin Outdated", "boolean"
+        attribute "EG Plugin Outdated", "enum", ["true","false"]
         attribute "ReceivedCommand", "string"
         attribute "ReceivedParam1", "string"
         attribute "ReceivedParam2", "string"
@@ -144,17 +144,17 @@ def comparePluginVersion(newVer) {
         def outdated = pluginVersion[device.id][1]<verNum   
         if (outdated) {
             sendEvent(name: "EG Plugin Version", value: pluginVersion[device.id][0] + " (outdated, please update to " + newVer[1] +")")
-            sendEvent(name: "EG Plugin Outdated", value:true)
+            sendEvent(name: "EG Plugin Outdated", value:"true")
         }
         else {
             sendEvent(name: "EG Plugin Version", value: pluginVersion[device.id][0] + " (Latest version)")
-            sendEvent(name: "EG Plugin Outdated", value:false)
+            sendEvent(name: "EG Plugin Outdated", value:"false")
         }
          
     } 
     else {
         sendEvent(name: "EG Plugin Version", value: "1.0.1 (outdated, please update to " + newVer[1] +")")
-        sendEvent(name: "EG Plugin Outdated", value:true)
+        sendEvent(name: "EG Plugin Outdated", value:"true")
     }
     
 }
@@ -248,27 +248,27 @@ def webSocketStatus(String status){
 
     if(status.startsWith('failure: ')) {
         connected[device.id] = false
-        sendEvent(name: "Connected", value: false)
+        sendEvent(name: "Connected", value: "false")
         log.warn("failure message from web socket ${status}")
  
        reconnect()
     } 
     else if(status == 'status: open') {
         log.info "websocket is open"
-        sendEvent(name: "Connected", value: true)
+        sendEvent(name: "Connected", value: "true")
         connected[device.id] = true
         onConnected()
       
     } 
     else if (status == "status: closing"){
-        sendEvent(name: "Connected", value: false)
+        sendEvent(name: "Connected", value: "false")
         connected[device.id] = false
         log.warn "WebSocket connection closing."
          reconnect()
        
     } 
     else {
-        sendEvent(name: "Connected", value: false)
+        sendEvent(name: "Connected", value: "false")
         connected[device.id] = false
         log.warn "WebSocket error, reconnecting."
         reconnect()
